@@ -18,7 +18,6 @@ import random
 
 import numpy as np
 import torch
-import torch.tensor
 import torch.utils
 import torch.utils.data
 import time
@@ -26,13 +25,15 @@ import math
 
 cpu = torch.device('cpu')
 
-
+# TFRecord is something like a database. It provides more eficient storage, faster I/O . helps when you have a large dataset.
 class TFRecordsDataset:
-    def __init__(self, cfg, logger, rank=0, world_size=1, buffer_size_mb=200, channels=3, seed=None, train=True, needs_labels=False):
+    def __init__(self, cfg, logger, rank=0, world_size=1, 
+    buffer_size_mb=200, channels=3, seed=None, train=True, needs_labels=False):
         self.cfg = cfg
         self.logger = logger
         self.rank = rank
         self.last_data = ""
+        # Assigning train and test set size
         if train:
             self.part_count = cfg.DATASET.PART_COUNT
             self.part_size = cfg.DATASET.SIZE // self.part_count
@@ -54,6 +55,7 @@ class TFRecordsDataset:
 
         self.part_count_local = self.part_count // world_size
 
+        # Assigning train and test set path
         if train:
             path = cfg.DATASET.PATH
         else:
@@ -123,7 +125,7 @@ def make_dataloader(cfg, logger, dataset, GPU_batch_size, local_rank, numpy=Fals
                     x = np.array([img[flip] for img, flip in zip(x, flips)])
                 if self.numpy:
                     return x
-                x = torch.tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
+                x = torch.Tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
                 return x
 
     batches = db.data_loader(iter(dataset), BatchCollator(local_rank), len(dataset) // GPU_batch_size)
@@ -143,7 +145,7 @@ def make_dataloader_y(cfg, logger, dataset, GPU_batch_size, local_rank):
                 if self.flip:
                     flips = [(slice(None, None, None), slice(None, None, None), slice(None, None, random.choice([-1, None]))) for _ in range(x.shape[0])]
                     x = np.array([img[flip] for img, flip in zip(x, flips)])
-                x = torch.tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
+                x = torch.Tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
                 return x, y
 
     batches = db.data_loader(iter(dataset), BatchCollator(local_rank), len(dataset) // GPU_batch_size)
@@ -260,7 +262,7 @@ def make_imagenet_dataloader(cfg, logger, dataset, GPU_batch_size, target_size, 
                 if self.flip:
                     flips = [(slice(None, None, None), slice(None, None, None), slice(None, None, random.choice([-1, None]))) for _ in range(x.shape[0])]
                     x = np.array([img[flip] for img, flip in zip(x, flips)])
-                x = torch.tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
+                x = torch.Tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
 
                 return x
 
@@ -297,7 +299,7 @@ def make_imagenet_dataloader_y(cfg, logger, dataset, GPU_batch_size, target_size
                 if self.flip:
                     flips = [(slice(None, None, None), slice(None, None, None), slice(None, None, random.choice([-1, None]))) for _ in range(x.shape[0])]
                     x = np.array([img[flip] for img, flip in zip(x, flips)])
-                x = torch.tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
+                x = torch.Tensor(x, requires_grad=True, device=torch.device(self.device), dtype=torch.float32)
                 return x, y
 
     batches = db.data_loader(iter(dataset), BatchCollator(local_rank), len(dataset) // GPU_batch_size)

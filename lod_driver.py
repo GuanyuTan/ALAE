@@ -21,6 +21,8 @@ from collections import defaultdict
 
 class LODDriver:
     def __init__(self, cfg, logger, world_size, dataset_size):
+        # world size is just the amount of GPUs they're using
+        # I'm gonna assume LOD is just acronym of Level of Detail
         if world_size == 8:
             self.lod_2_batch = cfg.TRAIN.LOD_2_BATCH_8GPU
         if world_size == 4:

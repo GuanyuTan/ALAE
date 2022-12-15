@@ -4,6 +4,11 @@ import numpy as np
 
 
 class WarmupMultiStepLR(torch.optim.lr_scheduler._LRScheduler):
+    # For my information : https://stackoverflow.com/questions/55933867/what-does-learning-rate-warm-up-mean/55942518
+    # Implemented using this in mind: https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+    # https://pytorch.org/docs/stable/_modules/torch/optim/lr_scheduler.html#LambdaLR
+    # This function is custom made btw and subclassed from _LRScheduler 
+    # Will update lr when scheduler.step() is called
     def __init__(
         self,
         optimizer,
@@ -80,6 +85,7 @@ class WarmupMultiStepLR(torch.optim.lr_scheduler._LRScheduler):
         self.__dict__.update(dict(last_epoch=state_dict["last_epoch"]))
 
 
+# This function is used to wrap all the optimizers together and passes to the WarmupMultiStepLR
 class ComboMultiStepLR:
     def __init__(
         self,

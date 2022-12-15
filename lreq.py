@@ -123,10 +123,14 @@ class Conv2d(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self):
+        # Used to re-initialize parameters.
+        # This is Kaiming Initialization. Std is the variance for kaiming initialization.
         self.std = self.gain / np.sqrt(self.fan_in) * self.lrmul
         if not self.implicit_lreq:
+            # Normal random initialization
             init.normal_(self.weight, mean=0, std=1.0 / self.lrmul)
         else:
+            # Kaiming initialization
             init.normal_(self.weight, mean=0, std=self.std / self.lrmul)
             setattr(self.weight, 'lr_equalization_coef', self.std)
             if self.bias is not None:

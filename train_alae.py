@@ -35,7 +35,7 @@ from PIL import Image
 
 def save_sample(lod2batch, tracker, sample, samplez, x, logger, model, cmodel, cfg, encoder_optimizer, decoder_optimizer):
     os.makedirs('results', exist_ok=True)
-
+# Save Sample LOL
     logger.info('\n[%d/%d] - ptime: %.2f, %s, blend: %.3f, lr: %.12f,  %.12f, max mem: %f",' % (
         (lod2batch.current_epoch + 1), cfg.TRAIN.TRAIN_EPOCHS, lod2batch.per_epoch_ptime, str(tracker),
         lod2batch.get_blend_factor(),
@@ -112,9 +112,11 @@ def train(cfg, logger, local_rank, world_size, distributed):
         encoder=cfg.MODEL.ENCODER,
         z_regression=cfg.MODEL.Z_REGRESSION
     )
+    # ranks are used in distributed learning only
+    # Here they are going to use Distributed Data Parallelism(training across multiple machines)
     model.cuda(local_rank)
     model.train()
-
+    # This whole block 
     if local_rank == 0:
         model_s = Model(
             startf=cfg.MODEL.START_CHANNEL_COUNT,
@@ -165,16 +167,19 @@ def train(cfg, logger, local_rank, world_size, distributed):
     arguments = dict()
     arguments["iteration"] = 0
 
+    # Assigning decoder optimizer
     decoder_optimizer = LREQAdam([
         {'params': decoder.parameters()},
         {'params': mapping_f.parameters()}
     ], lr=cfg.TRAIN.BASE_LEARNING_RATE, betas=(cfg.TRAIN.ADAM_BETA_0, cfg.TRAIN.ADAM_BETA_1), weight_decay=0)
 
+    # Assigning encoder optimizer
     encoder_optimizer = LREQAdam([
         {'params': encoder.parameters()},
         {'params': mapping_d.parameters()},
     ], lr=cfg.TRAIN.BASE_LEARNING_RATE, betas=(cfg.TRAIN.ADAM_BETA_0, cfg.TRAIN.ADAM_BETA_1), weight_decay=0)
 
+    # Using warmup learning rate 
     scheduler = ComboMultiStepLR(optimizers=
                                  {
                                     'encoder_optimizer': encoder_optimizer,
@@ -183,7 +188,7 @@ def train(cfg, logger, local_rank, world_size, distributed):
                                  milestones=cfg.TRAIN.LEARNING_DECAY_STEPS,
                                  gamma=cfg.TRAIN.LEARNING_DECAY_RATE,
                                  reference_batch_size=32, base_lr=cfg.TRAIN.LEARNING_RATES)
-
+    # Ease of access to different parts of the model
     model_dict = {
         'discriminator': encoder,
         'generator': decoder,
@@ -221,7 +226,7 @@ def train(cfg, logger, local_rank, world_size, distributed):
 
     rnd = np.random.RandomState(3456)
     latents = rnd.randn(32, cfg.MODEL.LATENT_SPACE_SIZE)
-    samplez = torch.tensor(latents).float().cuda()
+    samplez = torch.Tensor(latents).float().cuda()
 
     lod2batch = lod_driver.LODDriver(cfg, logger, world_size, dataset_size=len(dataset) * world_size)
 
@@ -234,7 +239,7 @@ def train(cfg, logger, local_rank, world_size, distributed):
                 if img.shape[2] == 4:
                     img = img[:, :, :3]
                 im = img.transpose((2, 0, 1))
-                x = torch.tensor(np.asarray(im, dtype=np.float32), requires_grad=True).cuda() / 127.5 - 1.
+                x = torch.Tensor(np.asarray(im, dtype=np.float32), requires_grad=True).cuda() / 127.5 - 1.
                 if x.shape[0] == 4:
                     x = x[:3]
                 src.append(x)

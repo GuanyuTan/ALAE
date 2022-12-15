@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#  http://www.apache.org/licenses/LICENSE-2.0
+#  http:\\\\www.apache.org\\licenses\\LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,26 +14,27 @@
 # ==============================================================================
 
 from yacs.config import CfgNode as CN
+import os
 
 
 _C = CN()
 
 _C.NAME = ""
-_C.PPL_CELEBA_ADJUSTMENT = False
+# _C.PPL_CELEBA_ADJUSTMENT = False
 _C.OUTPUT_DIR = "results"
 
 _C.DATASET = CN()
-_C.DATASET.PATH = 'celeba/data_fold_%d_lod_%d.pkl'
-_C.DATASET.PATH_TEST = ''
-_C.DATASET.FFHQ_SOURCE = '/data/datasets/ffhq-dataset/tfrecords/ffhq/ffhq-r%02d.tfrecords'
+_C.DATASET.PATH = os.path.join(os.getcwd(),'data\\datasets\\COVID\\tfrecords\\COVID-r%02d.tfrecords')
+_C.DATASET.PATH_TEST =  os.path.join(os.getcwd(),'data\\datasets\\COVID\\tfrecords\\COVID_test-r%02d.tfrecords')
+# _C.DATASET.FFHQ_SOURCE =  os.path.join(os.getcwd(),'data\\datasets\\ffhq-dataset\\tfrecords\\ffhq\\ffhq-r%02d.tfrecords')
 _C.DATASET.PART_COUNT = 1
 _C.DATASET.PART_COUNT_TEST = 1
-_C.DATASET.SIZE = 70000
-_C.DATASET.SIZE_TEST = 10000
-_C.DATASET.FLIP_IMAGES = True
-_C.DATASET.SAMPLES_PATH = 'dataset_samples/faces/realign128x128'
+_C.DATASET.SIZE = 3068
+_C.DATASET.SIZE_TEST = 542
+_C.DATASET.FLIP_IMAGES = False
+# _C.DATASET.SAMPLES_PATH = 'dataset_samples\\faces\\realign128x128'
 
-_C.DATASET.STYLE_MIX_PATH = 'style_mixing/test_images/set_celeba/'
+# _C.DATASET.STYLE_MIX_PATH = 'style_mixing\\test_images\\set_celeba\\'
 
 _C.DATASET.MAX_RESOLUTION_LEVEL = 10
 

@@ -100,3 +100,7 @@ class Registry(dict):
             self[module_name] = module
             return module
         return register_fn
+
+
+def get_main_directory():
+    return os.path.dirname(os.path.abspath(__file__))

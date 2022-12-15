@@ -9,3 +9,8 @@ __pycache__/
 *.eps
 *.txt
 results*/
+data/
+covid_results/
+kaggle.json
+*.pth
+
